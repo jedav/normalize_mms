@@ -1,0 +1,12 @@
+
+A friend of mine who travels internationally mentioned that his phone changes
+the source addresses of received text messages based on the country he's
+receiving them from, and that this makes it difficult to keep track of
+conversations.
+
+This project provides a script to work around this.
+It takes an xml-formatted dump of the text messages database (from android's text messaging app, I presume)
+normalizes all of the addresses, and dumps the result to a new xml representation
+of the DB, which can then by reloaded into the phone manually.
+
+Totally untested.
