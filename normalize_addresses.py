@@ -1,14 +1,12 @@
 #!/usr/bin/env python2
 
-# kompressor does not dance.
-
 import xml.etree.ElementTree as ET
 import re
 import sys
 
 # regular expression for finding things that look like international phone numbers
 # developed from a handful of examples rather than the RFCs, so...  works generally, could miss edge cases
-PHONE_RE = re.compile("^(?:00[ -]?|\+?)(\d{0,3}?)[ -]?\(?(\d{3})\)?[ -]?(\d{3})[ -]?(\d{4})$")
+PHONE_RE = re.compile(r"^(?:00[ -]?|\+?)(\d{0,3}?)[ -]?\(?(\d{3})\)?[ -]?(\d{3})[ -]?(\d{4})$")
 # names of groups extracted by regex, by position
 RE_PARTS = ["country", "area", "first", "last"]
 
@@ -45,6 +43,9 @@ class AddrData(object):
     out += self.canon
     return out
 
+
+# functions for gathering addresses
+
 def add_addr(addrmap, addr):
   match = PHONE_RE.match(addr)
   if match is None:
@@ -57,7 +58,6 @@ def add_addr(addrmap, addr):
   else:
     addrmap[canon] = AddrData(parts)
   
-
 def gather_addrs(root):
   # here we look for multiple versions of the same address, some of which might have more information than others
   # to make sure that when we canonicalize addresses, we do so correctly
@@ -73,7 +73,9 @@ def gather_addrs(root):
       add_addr(addrmap, addr)
   return addrmap
 
-def standardize_addr(addrmap, addr):
+# functions for outputting normalized addresses
+
+def normalize_addr(addrmap, addr):
   match = PHONE_RE.match(addr)
   if match is None:
     return addr
@@ -82,7 +84,6 @@ def standardize_addr(addrmap, addr):
   assert canon in addrmap
   return str(addrmap[canon])
   
-
 def update_addrs(root, addrmap):
   nodes = root.findall(ADDR_XPATH)
   for node in nodes:
@@ -91,9 +92,10 @@ def update_addrs(root, addrmap):
       addresses = address.split('~')
     else:
       addresses = [address]
-    addresses = [standardize_addr(addrmap, addr) for addr in addresses]
+    addresses = [normalize_addr(addrmap, addr) for addr in addresses]
     address = '~'.join(addresses)
     node.set("address", address)
+
 
 def parse_args():
   if len(sys.argv) < 2:
