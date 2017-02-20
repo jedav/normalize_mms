@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 
-import xml.etree.ElementTree as ET
+import defusedxml.ElementTree as ET
 import re
 import sys
 
@@ -114,7 +114,7 @@ def parse_args():
 
 def main():
   (inpath, outpath) = parse_args()
-  tree = ET.parse(inpath)
+  tree = ET.parse(inpath, forbid_dtd=True)
   root = tree.getroot()
   addrmap = gather_addrs(root)
   update_addrs(root, addrmap)
